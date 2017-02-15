@@ -2,7 +2,7 @@
 
 const rules = {
 
-    "NUMBER":       "\\d+\\.?\\d*[eE]?\\d*",
+    "NUMBER":       "\\d+(\\.\\d+([eE]-?\\d+)?)?",
     "STRING":       '"(\\\\.|[^"])*"',
     "EMPTY":        "",
     "BASE":         "[0-9A-Za-z_~]+",
@@ -14,10 +14,11 @@ const rules = {
     "VALUE":        "=CONSTANT | >SPEC",
 
     "RUN":          "ID /BASE?",
+    "CONSTRUN":     "CONSTANT /BASE?",
     "IDS":          "RUN ,RUN*",
     "SPECS":        "IDS .IDS? @IDS? :IDS?",
-    "CONSTANTS":    "CONSTANT ,CONSTANT*",
-    "BLOCK":        "IDS? :IDS? =CONSTANTS? >SPECS?",
+    "CONSTANTS":    "CONSTRUN ,CONSTRUN*",
+    "BLOCK":        "/INT? IDS? :IDS? =CONSTANTS? >SPECS?",
     "OPS":          "BLOCK ;BLOCK*",
 
     "EVENT":        "#SPEC VALUE?",
@@ -54,7 +55,6 @@ function build (key) {
     const RE_EXPR = /([^A-Za-z0-9\s]*)([A-Z][A-Z0-9_]+)([\*\+\?]{0,1})/g;
     const clean = rule.replace( RE_EXPR, expand_clean );
     const safe =  rule.replace( RE_EXPR, expand_safe ).replace(/\s+/g, '\\s*');
-    console.log(key, 'is', rule, 'regex:', clean);
     re_built[key] = clean;
     re_parsers[key] = new RegExp('^'+safe+'$', 'm');
 }

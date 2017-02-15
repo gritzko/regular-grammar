@@ -8,6 +8,8 @@ function test (string) {
 console.log('---tests---');
 test('');
 test('0');
+test('1.23e4');
+test('12.3E-4');
 test('"some string"');
 test('0+0');
 test('10-Z0');
@@ -34,6 +36,19 @@ test(':field1="value1"; :field2=2; :field3>some+object');
 test('!empty+state |');
 test('#empty+ref >');
 test('#empty+constant =');
+test('/8');
+test('/8 :1,2,3,4,5,6,7,8 =/8');
 
 const re_e = grammar.parsers.EVENT;
-console.log(re_e.test('#object+author.json@sometime+origin:field="value"'));
+const event_str = '#object+author.json@sometime+origin:field="value"';
+console.log(re_e.test(event_str));
+let mln_str = "";
+const ev_count = 100000;
+for(let i=0; i<ev_count; i++)
+    mln_str += event_str;
+const re_frame = grammar.parsers.FRAME_UP;
+const start_ms = new Date().getTime();
+const is_frame = re_frame.test(mln_str);
+const end_ms = new Date().getTime();
+console.log(is_frame, 1.0*(end_ms-start_ms)/ev_count, 'ms or', 
+        1000/(end_ms-start_ms)*ev_count/1000000, 'MHz');
