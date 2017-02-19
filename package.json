@@ -1,12 +1,19 @@
 {
     "name": "swarm-grammar",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "description": "A grammar for the Swarm protocol (and regex parsers)",
     "author": "Victor Grishchenko <victor.grishchenko@gmail.com>",
     "main": "index.js",
     "repository": {
         "type": "git",
         "url": ""
+    },
+    "devDependencies": {
+        "tape": "4.6.3",
+        "tap-spec": "4.1.1"
+    },
+    "scripts": {
+        "test": "tape test/01_grammar.js | tap-spec"
     },
     "keywords": [
         "swarm",
