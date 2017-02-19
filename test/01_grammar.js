@@ -6,14 +6,18 @@ tap ('grammar.01.A triplets', function (tap)  {
 
     tap.deepEqual( grammar.triplets('ID'), [
         {
+            formula: 'INT',
             marker: '',
             rule:   'INT',
-            quantifier: ''
+            quantifier: '',
+            repeating: false
         },
         {
+            formula: '[+%-]INT?',
             marker: '[+%-]',
             rule:   'INT',
-            quantifier: '?'
+            quantifier: '?',
+            repeating: false
         }
     ] );
     tap.end();
@@ -38,40 +42,50 @@ tap ('grammar.01.B vanilla', function (tap) {
 
 });
 
+tap( 'grammar.01.C split', function (tap) {
+    tap.deepEqual(grammar.split('1+1', 'ID'), ['1', '1']);
+    tap.deepEqual(grammar.split('1+1 :2-2', 'SPEC'), ['1+1', undefined, undefined, '2-2']);
+    tap.deepEqual(grammar.split('1+1.0 :2-2', 'SPEC'), ['1+1', '0 ', undefined, '2-2']);
+    tap.deepEqual(grammar.split('"string"', 'CONSTANT'), [undefined, '"string"', undefined]);
+    tap.deepEqual(grammar.split('1+1,2+2,3+3', 'IDS'), ['1+1', ['2+2','3+3']]);
+    tap.deepEqual(grammar.split('#1=#2#3=', 'FRAME_UP'), [[], ['#1=','#2','#3=']]);
+    tap.end();
+} );
+
 tap ('grammar.01.D grammar.is', function(tap){
 
-    tap.deepEqual(grammar.test('').sort(), ["SPEC","EMPTY","CONSTANT","FRAME_UP","CONSTRUN","CONSTANTS","BLOCK","OPS","FRAME_DOWN"].sort());
-    tap.deepEqual(grammar.test('0').sort(), ["INT","ID","SPEC","NUMBER","CONSTANT","BASE","RUN","IDS","CONSTRUN","CONSTANTS","SPECS","BLOCK","OPS"].sort());
-    tap.deepEqual(grammar.test('1.23e4').sort(), ["SPEC","NUMBER","CONSTANT","CONSTRUN","CONSTANTS","SPECS"].sort());
-    tap.deepEqual(grammar.test('12.3E-4').sort(), ["SPEC","NUMBER","CONSTANT","CONSTRUN","CONSTANTS","SPECS"].sort());
-    tap.deepEqual(grammar.test('\"some string\"').sort(), ["STRING","CONSTANT","CONSTRUN","CONSTANTS"].sort());
-    tap.deepEqual(grammar.test('0+0').sort(), ["ID","SPEC","RUN","IDS","SPECS","BLOCK","OPS"].sort());
-    tap.deepEqual(grammar.test('10-Z0').sort(), ["ID","SPEC","RUN","IDS","SPECS","BLOCK","OPS"].sort());
-    tap.deepEqual(grammar.test('Sl0v0').sort(), ["INT","ID","SPEC","BASE","RUN","IDS","SPECS","BLOCK","OPS"].sort());
-    tap.deepEqual(grammar.test('12345+origin').sort(), ["ID","SPEC","RUN","IDS","SPECS","BLOCK","OPS"].sort());
-    tap.deepEqual(grammar.test('L0Ngl0nG01%HASHHASH00').sort(), ["ID","SPEC","RUN","IDS","SPECS","BLOCK","OPS"].sort());
-    tap.deepEqual(grammar.test('notanumbertoolong').sort(), ["BASE"].sort());
-    tap.deepEqual(grammar.test('  0BjeKtID +author .genfn@12time+origin:l0cat10n+origin').sort(), ["SPEC","SPECS"].sort());
-    tap.deepEqual(grammar.test(':l0cat10n').sort(), ["SPEC","BLOCK","OPS"].sort());
-    tap.deepEqual(grammar.test('3.1415').sort(), ["SPEC","NUMBER","CONSTANT","CONSTRUN","CONSTANTS","SPECS"].sort());
-    tap.deepEqual(grammar.test('\"string\"').sort(), ["STRING","CONSTANT","CONSTRUN","CONSTANTS"].sort());
-    tap.deepEqual(grammar.test('0/~').sort(), ["RUN","IDS","CONSTRUN","CONSTANTS","SPECS","BLOCK","OPS"].sort());
-    tap.deepEqual(grammar.test('0/~,~/0').sort(), ["IDS","SPECS","BLOCK","OPS"].sort());
-    tap.deepEqual(grammar.test('1,2,3').sort(), ["IDS","CONSTANTS","SPECS","BLOCK","OPS"].sort());
-    tap.deepEqual(grammar.test('=1,2,3').sort(), ["BLOCK","OPS"].sort());
-    tap.deepEqual(grammar.test('#object+author.json@1time\n+origin:field\n =1').sort(), ["EVENT","FRAME_UP","FRAME_DOWN"].sort());
-    tap.deepEqual(grammar.test('#object+author .json@1time+origin\t:field =\"some so-called \\"string\\"\"').sort(), ["EVENT","FRAME_UP","FRAME_DOWN"].sort());
-    tap.deepEqual(grammar.test('#object+author.json@1time+origin:field >another+object').sort(), ["EVENT","FRAME_UP","FRAME_DOWN"].sort());
-    tap.deepEqual(grammar.test('!no+changes').sort(), ["STATE","FRAME_DOWN"].sort());
-    tap.deepEqual(grammar.test('?object+author').sort(), ["ON","FRAME_UP"].sort());
-    tap.deepEqual(grammar.test('?I?want+to@read?all%that?0bjects.now').sort(), ["FRAME_UP"].sort());
-    tap.deepEqual(grammar.test('!object+author.json@1time+origin:0 | :one,two,three,four,five =1,2,3,\"hello world\" >0/4,object+ref').sort(), ["STATE","FRAME_DOWN"].sort());
-    tap.deepEqual(grammar.test(':field1=\"value1\"; :field2=2; :field3>some+object').sort(), ["OPS"].sort());
-    tap.deepEqual(grammar.test('!empty+state |').sort(), ["STATE","FRAME_DOWN"].sort());
-    tap.deepEqual(grammar.test('#empty+ref >').sort(), ["EVENT","FRAME_UP","FRAME_DOWN"].sort());
-    tap.deepEqual(grammar.test('#empty+constant =').sort(), ["EVENT","FRAME_UP","FRAME_DOWN"].sort());
-    tap.deepEqual(grammar.test('/8').sort(), ["CONSTRUN","CONSTANTS","BLOCK","OPS"].sort());
-    tap.deepEqual(grammar.test('/8 :1,2,3,4,5,6,7,8 =/8').sort(), ["BLOCK","OPS"].sort());
+    tap.deepEqual(grammar.test('').sort().join(), ["SPEC","EMPTY","CONSTANT","FRAME_UP","CONSTRUN","CONSTANTS","BLOCK","OPS","FRAME_DOWN"].sort().join());
+    tap.deepEqual(grammar.test('0').sort().join(), ["INT","ID","SPEC","NUMBER","CONSTANT","BASE","RUN","IDS","CONSTRUN","CONSTANTS","SPECS","BLOCK","OPS"].sort().join());
+    tap.deepEqual(grammar.test('1.23e4').sort().join(), ["SPEC","NUMBER","CONSTANT","CONSTRUN","CONSTANTS","SPECS"].sort().join());
+    tap.deepEqual(grammar.test('12.3E-4').sort().join(), ["SPEC","NUMBER","CONSTANT","CONSTRUN","CONSTANTS","SPECS"].sort().join());
+    tap.deepEqual(grammar.test('\"some string\"').sort().join(), ["STRING","CONSTANT","CONSTRUN","CONSTANTS"].sort().join());
+    tap.deepEqual(grammar.test('0+0').sort().join(), ["ID","SPEC","RUN","IDS","SPECS","BLOCK","OPS"].sort().join());
+    tap.deepEqual(grammar.test('10-Z0').sort().join(), ["ID","SPEC","RUN","IDS","SPECS","BLOCK","OPS"].sort().join());
+    tap.deepEqual(grammar.test('Sl0v0').sort().join(), ["INT","ID","SPEC","BASE","RUN","IDS","SPECS","BLOCK","OPS"].sort().join());
+    tap.deepEqual(grammar.test('12345+origin').sort().join(), ["ID","SPEC","RUN","IDS","SPECS","BLOCK","OPS"].sort().join());
+    tap.deepEqual(grammar.test('L0Ngl0nG01%HASHHASH00').sort().join(), ["ID","SPEC","RUN","IDS","SPECS","BLOCK","OPS"].sort().join());
+    tap.deepEqual(grammar.test('notanumbertoolong').sort().join(), ["BASE"].sort().join());
+    tap.deepEqual(grammar.test('  0BjeKtID +author .genfn@12time+origin:l0cat10n+origin').sort().join(), ["SPEC","SPECS"].sort().join());
+    tap.deepEqual(grammar.test(':l0cat10n').sort().join(), ["SPEC","BLOCK","OPS"].sort().join());
+    tap.deepEqual(grammar.test('3.1415').sort().join(), ["SPEC","NUMBER","CONSTANT","CONSTRUN","CONSTANTS","SPECS"].sort().join());
+    tap.deepEqual(grammar.test('\"string\"').sort().join(), ["STRING","CONSTANT","CONSTRUN","CONSTANTS"].sort().join());
+    tap.deepEqual(grammar.test('0/~').sort().join(), ["RUN","IDS","CONSTRUN","CONSTANTS","SPECS","BLOCK","OPS"].sort().join());
+    tap.deepEqual(grammar.test('0/~,~/0').sort().join(), ["IDS","SPECS","BLOCK","OPS"].sort().join());
+    tap.deepEqual(grammar.test('1,2,3').sort().join(), ["IDS","CONSTANTS","SPECS","BLOCK","OPS"].sort().join());
+    tap.deepEqual(grammar.test('=1,2,3').sort().join(), ["BLOCK","OPS"].sort().join());
+    tap.deepEqual(grammar.test('#object+author.json@1time\n+origin:field\n =1').sort().join(), ["EVENT","FRAME_UP","FRAME_DOWN"].sort().join());
+    tap.deepEqual(grammar.test('#object+author .json@1time+origin\t:field =\"some so-called \\"string\\"\"').sort().join(), ["EVENT","FRAME_UP","FRAME_DOWN"].sort().join());
+    tap.deepEqual(grammar.test('#object+author.json@1time+origin:field >another+object').sort().join(), ["EVENT","FRAME_UP","FRAME_DOWN"].sort().join());
+    tap.deepEqual(grammar.test('!no+changes').sort().join(), ["STATE","FRAME_DOWN"].sort().join());
+    tap.deepEqual(grammar.test('?object+author').sort().join(), ["ON","FRAME_UP"].sort().join());
+    tap.deepEqual(grammar.test('?I?want+to@read?all%that?0bjects.now').sort().join(), ["FRAME_UP"].sort().join());
+    tap.deepEqual(grammar.test('!object+author.json@1time+origin:0 | :one,two,three,four,five =1,2,3,\"hello world\" >0/4,object+ref').sort().join(), ["STATE","FRAME_DOWN"].sort().join());
+    tap.deepEqual(grammar.test(':field1=\"value1\"; :field2=2; :field3>some+object').sort().join(), ["OPS"].sort().join());
+    tap.deepEqual(grammar.test('!empty+state |').sort().join(), ["STATE","FRAME_DOWN"].sort().join());
+    tap.deepEqual(grammar.test('#empty+ref >').sort().join(), ["EVENT","FRAME_UP","FRAME_DOWN"].sort().join());
+    tap.deepEqual(grammar.test('#empty+constant =').sort().join(), ["EVENT","FRAME_UP","FRAME_DOWN"].sort().join());
+    tap.deepEqual(grammar.test('/8').sort().join(), ["CONSTRUN","CONSTANTS","BLOCK","OPS"].sort().join());
+    tap.deepEqual(grammar.test('/8 :1,2,3,4,5,6,7,8 =/8').sort().join(), ["BLOCK","OPS"].sort().join());
 
     tap.end();
 
@@ -79,7 +93,6 @@ tap ('grammar.01.D grammar.is', function(tap){
 
 tap ('grammar.01.E benchmark', function(tap){
 
-    const re_e = grammar.parser("EVENT");
     const event_str = '#object+author.json@sometime+origin:field="value"';
     let mln_str = "";
     const ev_count = 100000;

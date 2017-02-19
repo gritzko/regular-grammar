@@ -37,11 +37,14 @@ class Grammar {
         Grammar.TRIPLET_RE.lastIndex = 0;
         let m = null;
         while(m=Grammar.TRIPLET_RE.exec(rule)) {
-            ret.push ({
+            const triplet = {
+                formula:    m[0],
                 marker:     m[1]||'',
                 rule:       m[2],
-                quantifier: m[3]||''
-            });
+                quantifier: m[3]||'',
+                repeating:  m[3]==='*' || m[3]==='+'
+            };
+            ret.push (triplet);
         }
         return ret;
     }
@@ -55,15 +58,26 @@ class Grammar {
     }
 
 
+    splitter (triplet) {
+        const t = triplet;
+        if (this._splitters[t.formula])
+            return this._splitters[t.formula];
+        let p = (t.marker.length===1 ? '\\':'') + t.marker;
+        p += '(' + this.pattern(t.rule) + ')';
+        const splitter = new RegExp(p, 'g');
+        this._splitters[t.formula] = splitter;
+        return splitter;
+    }
+
+
     pattern (rule_name) {
         if (rule_name in this._patterns)
             return this._patterns[rule_name];
         const triplets = this.triplets(rule_name);
         const is_chain = triplets.every( t => t.quantifier!=='|' );
         const pattern = triplets.map( t => {
-            const repeat = t.quantifier in repeat_quantifiers;
             let ret = sterilize(this.pattern(t.rule));
-            if (!repeat)
+            if (!t.repeating)
                 ret = '(' + ret + ')';
             if (t.marker) {
                 ret = (t.marker.length===1 ? '\\':'') + t.marker + ret;
@@ -71,9 +85,8 @@ class Grammar {
             if (t.quantifier && t.quantifier!=='|') {
                 ret = '(?:' + ret + ')' + t.quantifier;
             }
-            if (repeat) {
+            if (t.repeating) {
                 ret = '(' + ret + ')';
-
             }
             return ret;
 
@@ -87,20 +100,26 @@ class Grammar {
      *  and punctuation.
      *  @returns {Array} an aray of parts; single-occurrence parts as strings,
      *  repeated parts as arrays of strings */
-    split (rule_name, text) {
+    split (text, rule_name) {
         const ret = [];
         const parser = this.parser(rule_name);
         if (!parser) throw new Error('unknown rule');
         const triplets = this.triplets(rule_name);
         parser.lastIndex = 0;
         const m = parser.exec(text);
-        if (!m) throw new Error('grammar violation');
+        if (!m)
+            throw new Error('grammar violation');
         for(let i=0; i<triplets.length; i++) {
+            const triplet = triplets[i];
             const match = m[i+1];
-            if (triplets[i].quantifier in repeat_quantifiers) {
-                const items = match.split(triplets[i].marker);
-                items.shift();
+            if (triplet.repeating) {
+                const splitter = this.splitter(triplet);
+                const items = [];
                 ret.push(items);
+                let s=null;
+                splitter.lastIndex = 0;
+                while (s=splitter.exec(match))
+                    items.push(s[1]);
             } else {
                 ret.push(match);
             }
@@ -121,7 +140,5 @@ Grammar.TRIPLET_RE =  /(\[.*?\]|[^A-Za-z0-9\s]?)([A-Z][A-Z0-9_]+)([\*\+\?\|]?)/g
 function sterilize (pattern) {
     return pattern.replace(/\((\?\:)?/g, '(?:');
 }
-
-const repeat_quantifiers = {'+':true, '*':true};
 
 module.exports = Grammar;

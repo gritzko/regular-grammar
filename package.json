@@ -10,10 +10,10 @@
     },
     "devDependencies": {
         "tape": "4.6.3",
-        "tap-spec": "4.1.1"
+        "tap-diff": "0.1.1"
     },
     "scripts": {
-        "test": "tape test/01_grammar.js | tap-spec"
+        "test": "tape test/01_grammar.js | tap-diff"
     },
     "keywords": [
         "swarm",
