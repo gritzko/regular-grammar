@@ -31,6 +31,8 @@ tap ('grammar.01.B vanilla', function (tap) {
     tap.notOk( grammar.is('1.23e4', 'INT') );
     tap.ok( grammar.is('12.3E-4', 'SPEC') );
     tap.notOk( grammar.is('0+0', 'CONSTANT') );
+    tap.ok( grammar.is('  0\n+0 ', 'ID') );
+    tap.notOk( grammar.is('0+ 0', 'ID') );
 
     tap.end();
 
@@ -49,7 +51,7 @@ tap ('grammar.01.D grammar.is', function(tap){
     tap.deepEqual(grammar.test('12345+origin').sort(), ["ID","SPEC","RUN","IDS","SPECS","BLOCK","OPS"].sort());
     tap.deepEqual(grammar.test('L0Ngl0nG01%HASHHASH00').sort(), ["ID","SPEC","RUN","IDS","SPECS","BLOCK","OPS"].sort());
     tap.deepEqual(grammar.test('notanumbertoolong').sort(), ["BASE"].sort());
-    tap.deepEqual(grammar.test('0BjeKtID+author.genfn@12time+origin:l0cat10n+origin').sort(), ["SPEC","SPECS"].sort());
+    tap.deepEqual(grammar.test('  0BjeKtID +author .genfn@12time+origin:l0cat10n+origin').sort(), ["SPEC","SPECS"].sort());
     tap.deepEqual(grammar.test(':l0cat10n').sort(), ["SPEC","BLOCK","OPS"].sort());
     tap.deepEqual(grammar.test('3.1415').sort(), ["SPEC","NUMBER","CONSTANT","CONSTRUN","CONSTANTS","SPECS"].sort());
     tap.deepEqual(grammar.test('\"string\"').sort(), ["STRING","CONSTANT","CONSTRUN","CONSTANTS"].sort());
@@ -57,8 +59,8 @@ tap ('grammar.01.D grammar.is', function(tap){
     tap.deepEqual(grammar.test('0/~,~/0').sort(), ["IDS","SPECS","BLOCK","OPS"].sort());
     tap.deepEqual(grammar.test('1,2,3').sort(), ["IDS","CONSTANTS","SPECS","BLOCK","OPS"].sort());
     tap.deepEqual(grammar.test('=1,2,3').sort(), ["BLOCK","OPS"].sort());
-    tap.deepEqual(grammar.test('#object+author.json@1time+origin:field =1').sort(), ["EVENT","FRAME_UP","FRAME_DOWN"].sort());
-    tap.deepEqual(grammar.test('#object+author.json@1time+origin:field =\"some so-called \\"string\\"\"').sort(), ["EVENT","FRAME_UP","FRAME_DOWN"].sort());
+    tap.deepEqual(grammar.test('#object+author.json@1time\n+origin:field\n =1').sort(), ["EVENT","FRAME_UP","FRAME_DOWN"].sort());
+    tap.deepEqual(grammar.test('#object+author .json@1time+origin\t:field =\"some so-called \\"string\\"\"').sort(), ["EVENT","FRAME_UP","FRAME_DOWN"].sort());
     tap.deepEqual(grammar.test('#object+author.json@1time+origin:field >another+object').sort(), ["EVENT","FRAME_UP","FRAME_DOWN"].sort());
     tap.deepEqual(grammar.test('!no+changes').sort(), ["STATE","FRAME_DOWN"].sort());
     tap.deepEqual(grammar.test('?object+author').sort(), ["ON","FRAME_UP"].sort());
