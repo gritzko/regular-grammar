@@ -10,19 +10,17 @@ const SWARM_GRAMMAR_RULES = {
 
     ID: 'INT [+%-]INT?',
     SPEC: 'ID? .ID? @ID? :ID?',
-    CONSTANT: 'NUMBER| STRING| EMPTY|',
-    VALUE: '=CONSTANT| >SPEC|',
+    CONSTANT: 'NUMBER| STRING| >ID| EMPTY|',
 
     RUN: 'ID /BASE?',
     CONSTRUN: 'CONSTANT /BASE?',
     IDS: 'RUN ,RUN*',
-    SPECS: 'IDS .IDS? @IDS? :IDS?',
     CONSTANTS: 'CONSTRUN ,CONSTRUN*',
-    BLOCK: '/INT? IDS? :IDS? =CONSTANTS? >SPECS?',
+    BLOCK: '/INT? IDS? :IDS? =CONSTANTS?',
     OPS: 'BLOCK ;BLOCK*',
 
-    EVENT: '#SPEC VALUE?',
-    ON: '?SPEC VALUE?',
+    EVENT: '#SPEC =CONSTANTS?',
+    ON: '?SPEC =CONSTANTS?',
     STATE: '!SPEC |OPS?',
 
     FRAME_UP: 'ON* EVENT*',
