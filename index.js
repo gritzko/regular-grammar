@@ -17,11 +17,11 @@ const SWARM_GRAMMAR_RULES = {
     IDS: 'RUN ,RUN*',
     CONSTANTS: 'CONSTRUN ,CONSTRUN*',
     BLOCK: '/INT? IDS? :IDS? =CONSTANTS?',
-    OPS: 'BLOCK ;BLOCK*',
+    OPS: 'BLOCK ;BLOCK* }EMPTY',
 
-    EVENT: '#SPEC =CONSTANTS?',
-    ON: '?SPEC =CONSTANTS?',
-    STATE: '!SPEC |OPS?',
+    EVENT: '#ID? .ID? @ID :ID? =CONSTANTS?',
+    ON: '?ID .ID? @ID? :ID? =CONSTANTS?',
+    STATE: '!ID .ID? @ID? :ID? {OPS?',
 
     FRAME_UP: 'ON* EVENT*',
     FRAME_DOWN: 'STATE* EVENT*',
