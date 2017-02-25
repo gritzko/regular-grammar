@@ -26,6 +26,10 @@ class Grammar {
         return m && m[0].length === text.length;
     }
 
+    hasRule (name) {
+        return name in this._rules;
+    }
+
     triplets (rule_name) {
         if (rule_name in this._triplets) { return this._triplets[rule_name]; }
         const ret = [];
@@ -74,9 +78,12 @@ class Grammar {
         const is_chain = triplets.every(t => t.quantifier !== '|');
         const pattern = triplets.map((t) => {
             let ret = sterilize(this.pattern(t.rule));
+            if (t.marker.length > 1) {
+                ret = t.marker + ret;
+            }
             if (!t.repeating) { ret = '(' + ret + ')'; }
-            if (t.marker) {
-                ret = (t.marker.length === 1 ? '\\' : '') + t.marker + ret;
+            if (t.marker.length === 1) {
+                ret = '\\' + t.marker + ret;
             }
             if (t.quantifier && t.quantifier !== '|') {
                 ret = '(?:' + ret + ')' + t.quantifier;

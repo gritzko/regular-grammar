@@ -12,7 +12,7 @@ const SWARM_GRAMMAR_RULES = {
     SPEC: 'ID? .ID? @ID? :ID?',
     CONSTANT: 'NUMBER| STRING| >ID| EMPTY|',
 
-    RUN: 'ID /BASE?',
+    RUN: 'INT /BASE? [+%-]INT?',
     CONSTRUN: 'CONSTANT /BASE?',
     IDS: 'RUN ,RUN*',
     CONSTANTS: 'CONSTRUN ,CONSTRUN*',

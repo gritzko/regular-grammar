@@ -1,6 +1,6 @@
 {
     "name": "swarm-grammar",
-    "version": "2.0.3",
+    "version": "2.0.4",
     "description": "A grammar for the Swarm protocol (and regex parsers)",
     "author": "Victor Grishchenko <victor.grishchenko@gmail.com>",
     "main": "index.js",
