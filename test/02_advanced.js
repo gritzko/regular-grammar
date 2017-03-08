@@ -1,13 +1,11 @@
 const tape = require('tape');
 const Grammar = require('..');
 
-// TODO
-// 5. local |
 
 tape('grammar.02.A EMPTY', (tap) => {
     const BRCKETED = new Grammar({
         WORD: /\w+/,
-        ANY: '{EMPTY WORD* }EMPTY',
+        ANY: '{ WORD* }',
     });
 
     tap.ok(BRCKETED.is('{something}', 'ANY'));
