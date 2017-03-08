@@ -45,12 +45,17 @@ class Grammar {
                 Grammar.TRIPLET_RE.lastIndex = m.index + 1;
                 continue;
             }
+            const formula = m[0];
+            const marker = m[2] ? m[2] : (m[1] || '');
+            const rule = m[3] || 'EMPTY';
+            const quantifier = m[4] || '';
+            const repeating = m[4]!==undefined && (m[4] === '*' || m[4] === '+' || m[4][0] === '{');
             const triplet = {
-                formula: m[0],
-                marker: m[1] || '',
-                rule: m[2] || 'EMPTY',
-                quantifier: m[3] || '',
-                repeating: m[3] === '*' || m[3] === '+',
+                formula,
+                marker,
+                rule,
+                quantifier,
+                repeating,
             };
             ret.push(triplet);
         }
@@ -98,7 +103,7 @@ class Grammar {
                     ret = m + '(' + ret + ')';
                 }
             } else {
-                ret = '((?:' + m + '\\s*' + ret + ')' + t.quantifier + ')';
+                ret = '((?:' + m + '\\s*' + ret + '\\s*)' + t.quantifier + ')';
             }
             return ret;
         });
@@ -144,7 +149,7 @@ class Grammar {
 
 }
 
-Grammar.TRIPLET_RE = /(\[.*?\]|[^A-Za-z0-9\s]?)([A-Z][A-Z0-9_]*)?([*+?|]?)/g;
+Grammar.TRIPLET_RE = /(\[.*?\]|"([^"]+)"|[^A-Za-z0-9\s])?([A-Z][A-Z0-9_]*)?([*+?|]|{\d+(?:,\d+)?})?/g;
 
 function sterilize (pattern) {
     return pattern.replace(/\((\?:)?/g, '(?:');
