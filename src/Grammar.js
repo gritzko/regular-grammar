@@ -5,6 +5,7 @@ class Grammar {
     constructor (rules) {
         this._triplets = Object.create(null);
         this._rules = rules;
+        this._rules.EMPTY = new RegExp();
         // {RULE: regex_str}
         this._parsers = Object.create(null);
         this._patterns = Object.create(null);
@@ -13,6 +14,7 @@ class Grammar {
                 this._patterns[key] = rules[key].source;
             }
         }
+        this._patterns.EMPTY = '';
         this._splitters = Object.create(null);
     }
 
@@ -23,7 +25,7 @@ class Grammar {
         if (!splitter) throw new Error('rule unknown');
         splitter.lastIndex = 0;
         const m = splitter.exec(text);
-        return m && m[0].length === text.length;
+        return m !== null && m[0].length === text.length;
     }
 
     hasRule (name) {
@@ -39,10 +41,14 @@ class Grammar {
         Grammar.TRIPLET_RE.lastIndex = 0;
         let m = null;
         while (m = Grammar.TRIPLET_RE.exec(rule)) {
+            if (m[0].length === 0) {
+                Grammar.TRIPLET_RE.lastIndex = m.index + 1;
+                continue;
+            }
             const triplet = {
                 formula: m[0],
                 marker: m[1] || '',
-                rule: m[2],
+                rule: m[2] || 'EMPTY',
                 quantifier: m[3] || '',
                 repeating: m[3] === '*' || m[3] === '+',
             };
@@ -78,18 +84,21 @@ class Grammar {
         const is_chain = triplets.every(t => t.quantifier !== '|');
         const pattern = triplets.map((t) => {
             let ret = sterilize(this.pattern(t.rule));
-            if (t.marker.length > 1) {
-                ret = t.marker + ret;
+            const q = t.quantifier === '?' ? '?' : '';
+            let m = t.marker;
+            if (m.length === 1) {
+                m = '\\' + m;
             }
-            if (!t.repeating) { ret = '(' + ret + ')'; }
-            if (t.marker.length === 1) {
-                ret = '\\' + t.marker + ret;
-            }
-            if (t.quantifier && t.quantifier !== '|') {
-                ret = '(?:' + ret + ')' + t.quantifier;
-            }
-            if (t.repeating) {
-                ret = '(' + ret + ')';
+            if (!t.repeating) {
+                if (t.marker.length > 1) {
+                    ret = '(' + m + '\\s*' + ret + ')' + q;
+                } else if (q === '?') {
+                    ret = '(?:' + (m ? m + '\\s*' : '') + '(' + ret + '))' + q;
+                } else {
+                    ret = m + '(' + ret + ')';
+                }
+            } else {
+                ret = '((?:' + m + '\\s*' + ret + ')' + t.quantifier + ')';
             }
             return ret;
         });
@@ -135,7 +144,7 @@ class Grammar {
 
 }
 
-Grammar.TRIPLET_RE = /(\[.*?\]|[^A-Za-z0-9\s]?)([A-Z][A-Z0-9_]+)([*+?|]?)/g;
+Grammar.TRIPLET_RE = /(\[.*?\]|[^A-Za-z0-9\s]?)([A-Z][A-Z0-9_]*)?([*+?|]?)/g;
 
 function sterilize (pattern) {
     return pattern.replace(/\((\?:)?/g, '(?:');

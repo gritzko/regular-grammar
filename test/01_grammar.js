@@ -1,7 +1,7 @@
 const tap = require('tape');
 const Grammar = require('..');
 
-const SWARM_GRAMMAR_RULES = {
+const SWARM_GRAMMAR_RULES = { // swarm 1.9.99 grammar :)
 
     NUMBER: /\d+(\.\d+([eE]-?\d+)?)?/,
     STRING: /"(\\.|[^"])*"/,
@@ -62,7 +62,7 @@ tap('grammar.01.B vanilla', (tap) => {
     tap.ok(grammar.is('12.3E-4', 'SPEC'));
     tap.notOk(grammar.is('0+0', 'CONSTANT'));
     tap.ok(grammar.is('  0\n+0 ', 'ID'));
-    tap.notOk(grammar.is('0+ 0', 'ID'));
+    tap.ok(grammar.is('0+ 0', 'ID'));
     // tap.ok( grammar.is('{a:1, b: "two " }', 'MAP'), 'the MAP type' );
 
     tap.end();
@@ -117,7 +117,7 @@ tap('grammar.01.D grammar.is', (tap) => {
 });
 
 tap('grammar.01.E benchmark', (tap) => {
-    const event_str = '#object+author.json@sometime+origin:field="value"';
+    const event_str = '#object+author.json@sometime+origin:field="value"\n';
     let mln_str = '';
     const ev_count = 100000;
     for (let i = 0; i < ev_count; i++) { mln_str += event_str; }
