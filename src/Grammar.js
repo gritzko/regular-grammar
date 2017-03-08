@@ -49,7 +49,7 @@ class Grammar {
             const marker = m[2] ? m[2] : (m[1] || '');
             const rule = m[3] || 'EMPTY';
             const quantifier = m[4] || '';
-            const repeating = m[4]!==undefined && (m[4] === '*' || m[4] === '+' || m[4][0] === '{');
+            const repeating = m[4] !== undefined && (m[4] === '*' || m[4] === '+' || m[4][0] === '{');
             const triplet = {
                 formula,
                 marker,
@@ -83,31 +83,55 @@ class Grammar {
     }
 
 
+    triplet_re (t) {
+        let ret = sterilize(this.pattern(t.rule));
+        const q = t.quantifier === '?' ? '?' : '';
+        let m = t.marker;
+        if (m.length === 1) {
+            m = '\\' + m;
+        }
+        if (!t.repeating) {
+            if (t.marker.length > 1) {
+                ret = '(' + m + '\\s*' + ret + ')' + q;
+            } else if (q === '?') {
+                ret = '(?:' + (m ? m + '\\s*' : '') + '(' + ret + '))' + q;
+            } else {
+                ret = m + '(' + ret + ')';
+            }
+        } else {
+            ret = '((?:' + m + '\\s*' + ret + '\\s*)' + t.quantifier + ')';
+        }
+        return ret;
+    }
+
+
     pattern (rule_name) {
         if (rule_name in this._patterns) { return this._patterns[rule_name]; }
         const triplets = this.triplets(rule_name);
-        const is_chain = triplets.every(t => t.quantifier !== '|');
-        const pattern = triplets.map((t) => {
-            let ret = sterilize(this.pattern(t.rule));
-            const q = t.quantifier === '?' ? '?' : '';
-            let m = t.marker;
-            if (m.length === 1) {
-                m = '\\' + m;
-            }
-            if (!t.repeating) {
-                if (t.marker.length > 1) {
-                    ret = '(' + m + '\\s*' + ret + ')' + q;
-                } else if (q === '?') {
-                    ret = '(?:' + (m ? m + '\\s*' : '') + '(' + ret + '))' + q;
+        // detect chains, strip |, make regex
+        let joined = '';
+        let chain = true;
+        triplets.forEach((t) => {
+            const p = this.triplet_re(t);
+            if (chain) {
+                if (t.quantifier === '|') {
+                    joined += '(?:';
+                    chain = false;
                 } else {
-                    ret = m + '(' + ret + ')';
+                    if (joined) {
+                        joined += '\\s*';
+                    }
                 }
+                joined += p;
             } else {
-                ret = '((?:' + m + '\\s*' + ret + '\\s*)' + t.quantifier + ')';
+                joined += '|' + p;
+                if (t.quantifier !== '|') {
+                    joined += ')';
+                    chain = true;
+                }
             }
-            return ret;
         });
-        this._patterns[rule_name] = pattern.join(is_chain ? '\\s*' : '|');
+        this._patterns[rule_name] = joined;
 
         return this._patterns[rule_name];
     }

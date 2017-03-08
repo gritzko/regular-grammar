@@ -49,10 +49,33 @@ tape('grammar.02.C QUOTES', (tap) => {
     });
 
     tap.ok(CONCRETE.is(' the dog', 'SENTENCE'));
-    console.log(CONCRETE);
     tap.ok(CONCRETE.is(' the cat the dog', 'SENTENCE'));
     tap.ok(CONCRETE.is('there', 'SENTENCE'));
     tap.notOk(CONCRETE.is('a cat', 'SENTENCE'));
+
+    tap.end();
+
+});
+
+tape('grammar.02.D OR', (tap) => {
+
+    const GEOMETRY = new Grammar({
+        COLOR:     /WHITE|BLACK|RED/,
+        SPHERE:    /SPHERE/i,
+        CUBE:      /CUBE/i,
+        SHAPE:     'SPHERE| CUBE',
+        SIZE:      '"BIG"| "SMALL"',
+        SENTENCE:  'COLOR| SIZE  SHAPE'
+    });
+
+    tap.ok(GEOMETRY.is('BIG SPHERE', 'SENTENCE'));
+    tap.ok(GEOMETRY.is('RED SPHERE', 'SENTENCE'));
+    tap.ok(GEOMETRY.is('SMALL CUBE', 'SENTENCE'));
+    tap.ok(GEOMETRY.is('BIG SPHERE', 'SENTENCE'));
+
+    tap.notOk(GEOMETRY.is('BIG BIG SPHERE', 'SENTENCE'));
+    tap.notOk(GEOMETRY.is('CUBE', 'SENTENCE'));
+    tap.notOk(GEOMETRY.is('SPHERE CUBE', 'SENTENCE'));
 
     tap.end();
 

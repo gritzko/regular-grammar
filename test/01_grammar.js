@@ -11,7 +11,7 @@ const SWARM_GRAMMAR_RULES = { // swarm 1.9.99 grammar :)
 
     ID: 'INT [+%-]INT?',
     SPEC: 'ID? .ID? @ID? :ID?',
-    CONSTANT: 'NUMBER| STRING| >ID| EMPTY|',
+    CONSTANT: 'NUMBER| STRING| >ID| EMPTY',
 
     RUN: 'INT /BASE? [+%-]INT?',
     CONSTRUN: 'CONSTANT /BASE?',
