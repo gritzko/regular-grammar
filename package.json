@@ -1,6 +1,6 @@
 {
     "name": "regular-grammar",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "A simple regular grammar/parser generator",
     "author": "Victor Grishchenko <victor.grishchenko@gmail.com>",
     "main": "src/Grammar.js",
@@ -13,7 +13,7 @@
         "tap-diff": "0.1.1"
     },
     "scripts": {
-        "test": "tape test/01_grammar.js | tap-diff"
+        "test": "tape test/0?_*.js | tap-diff"
     },
     "keywords": [
         "regular",

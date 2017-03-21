@@ -46,7 +46,7 @@ class Grammar {
                 continue;
             }
             const formula = m[0];
-            const marker = m[2] ? m[2] : (m[1] || '');
+            const marker = m[2] ? JSON.parse(m[2]) : (m[1] || '');
             const rule = m[3] || 'EMPTY';
             const quantifier = m[4] || '';
             const repeating = m[4] !== undefined && (m[4] === '*' || m[4] === '+' || m[4][0] === '{');
@@ -96,7 +96,7 @@ class Grammar {
             } else if (q === '?') {
                 ret = '(?:' + (m ? m + '\\s*' : '') + '(' + ret + '))' + q;
             } else {
-                ret = m + '(' + ret + ')';
+                ret = m + '\\s*(' + ret + ')';
             }
         } else {
             ret = '((?:' + m + '\\s*' + ret + '\\s*)' + t.quantifier + ')';
@@ -131,6 +131,13 @@ class Grammar {
                 }
             }
         });
+
+        joined = joined.replace(/\\s\*(\(+\?:|\(+|\)+)\\s\*/g, '\\s*$1');
+        joined = joined.replace(/\((\?\:)?\)/g, "");
+        joined = joined.replace(/(\\s\*)+/g, "\\s*");
+        // TODO test: no capture group for bodyless triplets
+        //console.log(rule_name, joined)
+
         this._patterns[rule_name] = joined;
 
         return this._patterns[rule_name];
@@ -173,7 +180,7 @@ class Grammar {
 
 }
 
-Grammar.TRIPLET_RE = /(\[.*?\]|"([^"]+)"|[^A-Za-z0-9\s])?([A-Z][A-Z0-9_]*)?([*+?|]|{\d+(?:,\d+)?})?/g;
+Grammar.TRIPLET_RE = /(\[\S*?\]|("(?:\\.|[^"])*")|[^A-Za-z0-9\s])?([A-Z][A-Z0-9_]*)?([*+?|]|{\d+(?:,\d+)?})?/g;
 
 function sterilize (pattern) {
     return pattern.replace(/\((\?:)?/g, '(?:');
