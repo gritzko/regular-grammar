@@ -56,6 +56,7 @@ class Grammar {
                 rule,
                 quantifier,
                 repeating,
+                empty: rule==='EMPTY'
             };
             ret.push(triplet);
         }
@@ -75,7 +76,7 @@ class Grammar {
     splitter (triplet) {
         const t = triplet;
         if (this._splitters[t.formula]) { return this._splitters[t.formula]; }
-        let p = (t.marker.length === 1 ? '\\' : '') + t.marker;
+        let p = (t.marker.length === 1 ? '\\' : '') + t.marker + '\\s*';
         p += '(' + this.pattern(t.rule) + ')';
         const splitter = new RegExp(p, 'g');
         this._splitters[t.formula] = splitter;
@@ -136,6 +137,7 @@ class Grammar {
         joined = joined.replace(/\((\?\:)?\)/g, "");
         joined = joined.replace(/(\\s\*)+/g, "\\s*");
         // TODO test: no capture group for bodyless triplets
+        // TODO no \\s* for them too
         //console.log(rule_name, joined)
 
         this._patterns[rule_name] = joined;

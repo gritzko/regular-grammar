@@ -39,6 +39,7 @@ tap('grammar.01.A triplets', (tap) => {
             rule: 'INT',
             quantifier: '',
             repeating: false,
+            empty: false,
         },
         {
             formula: '[+%-]INT?',
@@ -46,6 +47,7 @@ tap('grammar.01.A triplets', (tap) => {
             rule: 'INT',
             quantifier: '?',
             repeating: false,
+            empty: false,
         },
     ]);
     tap.end();
@@ -112,6 +114,8 @@ tap('grammar.01.D grammar.is', (tap) => {
     tap.deepEqual(grammar.test('#empty+constant@yester+day =').sort().join(), 'EVENT,FRAME_DOWN,FRAME_UP');
     tap.deepEqual(grammar.test('/8').sort().join(), ['CONSTRUN', 'CONSTANTS', 'BLOCK'].sort().join());
     tap.deepEqual(grammar.test('/8 :1,2,3,4,5,6,7,8 =/8').sort().join(), 'BLOCK');
+
+    console.log(grammar._parsers.FRAME_UP);
 
     tap.end();
 });

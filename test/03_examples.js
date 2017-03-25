@@ -1,5 +1,8 @@
+'use strict';
+
 const tape = require('tape');
 const Grammar = require('..');
+const Timer = require('./Timer');
 
 
 tape('grammar.03.A JSON', (tap) => {
@@ -22,6 +25,29 @@ tape('grammar.03.A JSON', (tap) => {
     tap.ok( INVENTORY_JSON.is(bears, 'ENTRY') );
     tap.ok( INVENTORY_JSON.is('[{"id":"A"}]', 'LIST') );
     tap.notOk(INVENTORY_JSON.is('{"id":123}', 'ENTRY'));
+
+    let mln = '[';
+    const entry_count = 200000;
+    for(let i=1; i<entry_count; i++)
+        mln += bears + ', ';
+    mln += bears + ']';
+
+    console.log(entry_count + ' entries, length: '+ mln.length + 'chars');
+
+    const timer = new Timer();
+
+    timer.push('JSON.parse');
+    const json = JSON.parse(mln);
+    timer.pop();
+    timer.push('Grammar.is');
+    const is = INVENTORY_JSON.is(mln, 'LIST');
+    timer.pop();
+    timer.push('Grammar.split');
+    const parts = INVENTORY_JSON.split(mln, 'LIST');
+    timer.pop();
+    tap.ok(is);
+    tap.equals(parts[1].length, entry_count-1);
+    console.log(INVENTORY_JSON._parsers.LIST);
 
     tap.end();
 

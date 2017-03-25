@@ -4,15 +4,16 @@ This package creates regex parsers for simple regular grammars.
 That is mostly valuable to implement various text-based
 protocols, serialization formats and smallish languages.
 
-We only support *regular* grammars, so for exapmle,
+We only support *regular* grammars, so for example,
 arbitrarily-deep nesting and recursion are not possible.
 But, by the Chomsky–Schützenberger hierarchy,
 the next degree of sophistication is a context-free language, which is
 probably too much for our use case.
-Our goal is simplicity and predictability, not Turing completeness.
+After all, our goal is simplicity and predictability, not Turing completeness.
 
 In particular, you may create parsers for reasonably functional subsets of SMTP, HTTP, or CSS.
-You can't create parser for general-case HTML, XML or JSON, as those have lots of nesting.
+You can't create a parser for general-case HTML, XML, or JSON. Those languages have arbitrarily deep nesting.
+Still, you can create a parser for a subset of such a language (see the JSON example).
 
 Advantages of the approach are:
 
