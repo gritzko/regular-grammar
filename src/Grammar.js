@@ -46,7 +46,23 @@ class Grammar {
                 continue;
             }
             const formula = m[0];
-            const marker = m[2] ? JSON.parse(m[2]) : (m[1] || '');
+            let marker;
+            if ( !m[1] ) {
+                marker = '';
+            } else if (m[1].length===1) {
+                marker = m[1];
+            } else if (m[1][0]==='"') {
+                marker = JSON.parse(m[1]);
+            } else if (m[1][0]==='[') {
+                const re_mrk = new RegExp(m[1]);
+                marker = re_mrk.source;
+            } else if (m[1][0]==='/') {
+                const re_mrk = new RegExp(m[2]);
+                marker = re_mrk.source;
+                console.warn("MARKER", m[2], marker);
+            } else {
+                throw new Error('marker parse fail: '+m);
+            }
             const rule = m[3] || 'EMPTY';
             const quantifier = m[4] || '';
             const repeating = m[4] !== undefined && (m[4] === '*' || m[4] === '+' || m[4][0] === '{');
@@ -56,6 +72,7 @@ class Grammar {
                 rule,
                 quantifier,
                 repeating,
+                empty: rule==='EMPTY'
             };
             ret.push(triplet);
         }
@@ -75,7 +92,7 @@ class Grammar {
     splitter (triplet) {
         const t = triplet;
         if (this._splitters[t.formula]) { return this._splitters[t.formula]; }
-        let p = (t.marker.length === 1 ? '\\' : '') + t.marker;
+        let p = (t.marker.length === 1 ? '\\' : '') + t.marker + '\\s*';
         p += '(' + this.pattern(t.rule) + ')';
         const splitter = new RegExp(p, 'g');
         this._splitters[t.formula] = splitter;
@@ -136,7 +153,6 @@ class Grammar {
         joined = joined.replace(/\((\?\:)?\)/g, "");
         joined = joined.replace(/(\\s\*)+/g, "\\s*");
         // TODO test: no capture group for bodyless triplets
-        //console.log(rule_name, joined)
 
         this._patterns[rule_name] = joined;
 
@@ -180,7 +196,7 @@ class Grammar {
 
 }
 
-Grammar.TRIPLET_RE = /(\[\S*?\]|("(?:\\.|[^"])*")|[^A-Za-z0-9\s])?([A-Z][A-Z0-9_]*)?([*+?|]|{\d+(?:,\d+)?})?/g;
+Grammar.TRIPLET_RE = /(\[\S*?\]|"(?:\\.|[^"])*"|\/([^\/\s]+)\/|[^A-Za-z0-9\s])?([A-Z][A-Z0-9_]*)?([*+?|]|{\d+(?:,\d+)?})?/g;
 
 function sterilize (pattern) {
     return pattern.replace(/\((\?:)?/g, '(?:');

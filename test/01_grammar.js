@@ -13,7 +13,7 @@ const SWARM_GRAMMAR_RULES = { // swarm 1.9.99 grammar :)
     SPEC: 'ID? .ID? @ID? :ID?',
     CONSTANT: 'NUMBER| STRING| >ID| EMPTY',
 
-    RUN: 'INT /BASE? [+%-]INT?',
+    RUN: 'INT /BASE? /[+%-]/INT?',
     CONSTRUN: 'CONSTANT /BASE?',
     IDS: 'RUN ,RUN*',
     CONSTANTS: 'CONSTRUN ,CONSTRUN*',
@@ -35,6 +35,7 @@ tap('grammar.01.A triplets', (tap) => {
     tap.deepEqual(grammar.triplets('ID'), [
         {
             formula: 'INT',
+            empty: false,
             marker: '',
             rule: 'INT',
             quantifier: '',
@@ -42,6 +43,7 @@ tap('grammar.01.A triplets', (tap) => {
         },
         {
             formula: '[+%-]INT?',
+            empty: false,
             marker: '[+%-]',
             rule: 'INT',
             quantifier: '?',
