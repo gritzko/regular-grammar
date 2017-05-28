@@ -59,7 +59,6 @@ class Grammar {
             } else if (m[1][0]==='/') {
                 const re_mrk = new RegExp(m[2]);
                 marker = re_mrk.source;
-                console.warn("MARKER", m[2], marker);
             } else {
                 throw new Error('marker parse fail: '+m);
             }
