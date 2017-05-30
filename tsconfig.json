@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
+    "declaration": true,
+    "outDir": "lib/",
+    "noEmitHelpers": true,
+    "importHelpers": true,
+    "alwaysStrict": true,
+    "noEmitOnError": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true
+  },
+  "exclude": [
+    "node_modules",
+    "lib/"
+  ]
+}
