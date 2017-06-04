@@ -47,6 +47,10 @@ class Grammar {
             }
             const formula = m[0];
             let marker;
+            let marker_optional = m[1] && m[1].length>1 && m[1][m[1].length-1]==='?' ? true : false;
+            if (marker_optional)
+                m[1] = m[1].substr(0,m[1].length-1);
+
             if ( !m[1] ) {
                 marker = '';
             } else if (m[1].length===1) {
@@ -68,6 +72,7 @@ class Grammar {
             const triplet = {
                 formula,
                 marker,
+                marker_optional,
                 rule,
                 quantifier,
                 repeating,
@@ -91,7 +96,9 @@ class Grammar {
     splitter (triplet) {
         const t = triplet;
         if (this._splitters[t.formula]) { return this._splitters[t.formula]; }
-        let p = (t.marker.length === 1 ? '\\' : '') + t.marker + '\\s*';
+        let p = (t.marker.length === 1 ? '\\' : '') + t.marker +
+            (t.marker_optional?'?':'') + 
+            '\\s*';
         p += '(' + this.pattern(t.rule) + ')';
         const splitter = new RegExp(p, 'g');
         this._splitters[t.formula] = splitter;
@@ -105,6 +112,9 @@ class Grammar {
         let m = t.marker;
         if (m.length === 1) {
             m = '\\' + m;
+        }
+        if (t.marker_optional) {
+            m = m + '?';
         }
         if (!t.repeating) {
             if (t.marker.length > 1) {
@@ -195,7 +205,7 @@ class Grammar {
 
 }
 
-Grammar.TRIPLET_RE = /(\[\S*?\]|"(?:\\.|[^"])*"|\/([^\/\s]+)\/|[^A-Za-z0-9\s])?([A-Z][A-Z0-9_]*)?([*+?|]|{\d+(?:,\d+)?})?/g;
+Grammar.TRIPLET_RE = /((?:\[\S*?\]|"(?:\\.|[^"])*"|\/([^\/\s]+)\/|[^A-Za-z0-9\s])\??)?([A-Z][A-Z0-9_]*)?([*+?|]|{\d+(?:,\d+)?})?/g;
 
 function sterilize (pattern) {
     return pattern.replace(/\((\?:)?/g, '(?:');

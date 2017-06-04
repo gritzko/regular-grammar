@@ -96,3 +96,18 @@ tape('grammar.02.E BABY ENGLISH', (tap) => {
 
     tap.end();
 });
+
+tape('grammar.03.F OPTIONAL MARKER', (tap) => {
+    const WORDS = new Grammar({
+        WORD: /\w+/,
+        WORDS: ",?WORD+"
+    });
+
+    tap.ok(WORDS.is("some words, more words", "WORDS"));
+    const words = WORDS.split("some words, more words", "WORDS");
+    tap.deepEqual(words, [["some", "words", "more", "words"]] );
+    console.warn(words);
+
+    tap.end();
+
+});
