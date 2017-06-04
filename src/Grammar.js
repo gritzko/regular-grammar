@@ -208,7 +208,9 @@ class Grammar {
 Grammar.TRIPLET_RE = /((?:\[\S*?\]|"(?:\\.|[^"])*"|\/([^\/\s]+)\/|[^A-Za-z0-9\s])\??)?([A-Z][A-Z0-9_]*)?([*+?|]|{\d+(?:,\d+)?})?/g;
 
 function sterilize (pattern) {
-    return pattern.replace(/\((\?:)?/g, '(?:');
+    // FIXME build sterilized, retire this hack
+    return pattern.replace(/\((\?:)?/g, '(?:').
+        replace(/\\\(\?:/g, '\\(');
 }
 
 module.exports = Grammar;
