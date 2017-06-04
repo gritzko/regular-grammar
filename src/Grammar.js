@@ -179,7 +179,7 @@ class Grammar {
         const triplets = this.triplets(rule_name);
         parser.lastIndex = 0;
         const m = parser.exec(text);
-        if (!m) { throw new Error('grammar violation'); }
+        if (!m) { return null; }
         for (let i = 0; i < triplets.length; i++) {
             const triplet = triplets[i];
             const match = m[i + 1];
